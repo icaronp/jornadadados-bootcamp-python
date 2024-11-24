@@ -24,6 +24,10 @@ print(result)
 
 # encoding='utf-8'
 
-# 'encoding': 'UTF-8-SIG'
+# encoding='UTF-8-SIG'
 
-# python teste.py
+# encoding='65001'
+
+# python teste1.py
+
+# poetry run python teste1.py
