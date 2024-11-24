@@ -18,6 +18,8 @@ df = pd.read_csv(caminho, encoding=result['encoding'])
 
 print(result)
 
+print(df)
+
 # encoding='ISO-8859-1'
 
 # encoding='latin-1'
