@@ -1,1 +1,1 @@
-# bootcamp python 2
+# jornada bootcamp python
