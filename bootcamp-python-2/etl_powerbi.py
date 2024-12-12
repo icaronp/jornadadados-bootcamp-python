@@ -1,7 +1,15 @@
-
-from etl_extract import etl_arquivos
-
 import pandas as pd
+
+import os
+
+import glob
+
+
+def etl_arquivos(caminho: str, encoding: str='utf-8', file: str='*.csv') -> pd.DataFrame:
+    arquivos_csv = glob.glob(os.path.join(caminho, '**', file), recursive=True)
+    df_list = [pd.read_csv(arquivo, encoding=encoding, sep=';', decimal=',') for arquivo in arquivos_csv]
+    df_total = pd.concat(df_list, ignore_index=True)
+    return df_total
 
 
 def remover_colunas(df: pd.DataFrame, lista_colunas: list) -> pd.DataFrame:
@@ -38,13 +46,8 @@ def substituir_valores(df: pd.DataFrame, dict_colunas_substituicoes: dict) -> pd
 
 
 def preencher_vazias(df: pd.DataFrame, dict_colunas_valores: dict) -> pd.DataFrame:
-    """
-    Exemplos:
-
-    values = {{"A": 0, "B": 1, "C": 2, "D": 3}}
-
-    """
     df = df.fillna(value=dict_colunas_valores)
+    """values = {{"A": 0, "B": 1, "C": 2, "D": 3}}"""
     return df
 
 
@@ -57,17 +60,15 @@ if __name__ == "__main__":
 
     caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE"
 
-    df_extraido = etl_arquivos(caminho, encoding='ISO-8859-1')
+    df_extraido = etl_arquivos(caminho=caminho, encoding='ISO-8859-1')
 
-    df_transform = remover_colunas(df_extraido, lista_colunas=['STONE ID', 'STONECODE', 'BANDEIRA', 'ÚLTIMO STATUS', 
+    df_transform = remover_colunas(df=df_extraido, lista_colunas=['STONE ID', 'STONECODE', 'BANDEIRA', 'ÚLTIMO STATUS', 
                                                                      'SERIAL NUMBER', 'NÚMERO DE SÉRIE', 'N° CARTÃO', 
                                                                      'DATA DO ÚLTIMO STATUS', 'STONE CODE'])
     
     df_transform = renomear_colunas(df_transform, {'TIPO': 'FORMA DE PAGTO'})
-    #                                                   'HORA DA VENDA': 'DATA DA VENDA',
-    #                                                   'TIPO': 'FORMA DE PAGTO', 
-    #                                                   'PRODUTO': 'FORMA DE PAGTO'})
-    
+
+
     df_transform = unificar_colunas(df_transform, [('FORMA DE PAGTO', 'PRODUTO'),
                                                        ('DATA DA VENDA', 'HORA DA VENDA')])
     
@@ -75,18 +76,17 @@ if __name__ == "__main__":
                                                                         'Débito Pré-pago': 'Débito 1x',
                                                                         'Crédito Pré-pago': 'Crédito 1x',
                                                                         'Crédito': 'Crédito 1x'}}) 
-    #                                                 'Coluna2': {1: 'um', 2: 'dois'}})
     
     df_transform = preencher_vazias(df_transform, {'DESCONTO DE ANTECIPAÇÃO': 0, 
                                                    'DESCONTO DE MDR': df_transform['VALOR BRUTO'].astype(float) - df_transform['VALOR LÍQUIDO'].astype(float),
-                                                   'QTD DE PARCELAS': df_transform['FORMA DE PAGTO'].apply(lambda x: int(x.split()[-1][:-1])).astype(float)})                                             
-    #                                               'QTD DE PARCELAS': df_transform['FORMA DE PAGTO'].str.split(' ').str[-1].str[:-1].astype(float)})
+                                                   'QTD DE PARCELAS': df_transform['FORMA DE PAGTO'].str.split(' ').str[-1].str[:-1].astype(float)})
     
-    print(df_transform)
+    df_transform['QTD DE PARCELAS'] = df_transform['QTD DE PARCELAS'].astype(int)
     
+    print(df_transform)   
+  
     took = time.time() - start_time
 
     print(f"Processing took: {took:.2f} sec")
 
-# poetry run python etl_extract.py
-# poetry run python etl_transform.py
+    # poetry run python etl_powerbi.py

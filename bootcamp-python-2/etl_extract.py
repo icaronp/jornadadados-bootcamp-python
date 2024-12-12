@@ -13,7 +13,7 @@ import glob
 
 def etl_arquivos(caminho: str, encoding: str='utf-8', file: str='*.csv') -> pd.DataFrame:
     arquivos_csv = glob.glob(os.path.join(caminho, '**', file), recursive=True)
-    df_list = [pd.read_csv(arquivo, encoding=encoding, sep=';') for arquivo in arquivos_csv]
+    df_list = [pd.read_csv(arquivo, encoding=encoding, sep=';', decimal=',') for arquivo in arquivos_csv]
     df_total = pd.concat(df_list, ignore_index=True)
     return df_total
 
