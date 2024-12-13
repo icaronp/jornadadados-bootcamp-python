@@ -7,14 +7,14 @@ import glob
 import chardet
 
 
-caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE\2024\stone_vendas_2024_07.csv"
+caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE\2024\stone_vendas_2024_12.csv"
 
 arquivos_csv = glob.glob(os.path.join(caminho, '*.csv'))
 
 with open(caminho, 'rb') as f:
     result = chardet.detect(f.read())
 
-df = pd.read_csv(caminho, encoding=result['encoding'])
+df = pd.read_csv(caminho, encoding=result['encoding'], sep=';')
 
 print(result)
 
@@ -32,4 +32,4 @@ print(df)
 
 # python teste1.py
 
-# poetry run python teste1.py
+# poetry run python exercicio-2.py
