@@ -1,26 +1,13 @@
 import pandas as pd
-
+import glob
 import os
 
-import glob
 
-import chardet
-
-
-def etl_arquivos(caminho: str, file: str='*.csv') -> pd.DataFrame:
+def etl_arquivos(caminho: str, encoding: str='utf-8', file: str='*.csv') -> pd.DataFrame:
     arquivos_csv = glob.glob(os.path.join(caminho, '**', file), recursive=True)
-    df_list = []
-
-    for arquivo in arquivos_csv:
-        with open(arquivo, 'rb') as f:
-            result = chardet.detect(f.read())
-            encoding = result['encoding']  
-            df = pd.read_csv(arquivo, encoding=encoding, sep=';', decimal=',')
-            df_list.append(df)
-
+    df_list = [pd.read_csv(arquivo, encoding=encoding, sep=';', decimal=',') for arquivo in arquivos_csv]
     df_total = pd.concat(df_list, ignore_index=True)
     return df_total
-
 
 def remover_colunas(df: pd.DataFrame, lista_colunas: list) -> pd.DataFrame:
     return df.drop(lista_colunas, axis=1)
@@ -70,7 +57,7 @@ if __name__ == "__main__":
 
     caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE"
 
-    df_extraido = etl_arquivos(caminho=caminho)
+    df_extraido = etl_arquivos(caminho=caminho, encoding='ISO-8859-1')
 
     df_transform = remover_colunas(df=df_extraido, lista_colunas=['STONE ID', 'STONECODE', 'BANDEIRA', 'ÚLTIMO STATUS', 
                                                                      'SERIAL NUMBER', 'NÚMERO DE SÉRIE', 'N° CARTÃO', 
@@ -90,6 +77,7 @@ if __name__ == "__main__":
     df_transform = preencher_vazias(df_transform, {'DESCONTO DE ANTECIPAÇÃO': 0, 
                                                    'DESCONTO DE MDR': df_transform['VALOR BRUTO'].astype(float) - df_transform['VALOR LÍQUIDO'].astype(float),
                                                    'QTD DE PARCELAS': df_transform['FORMA DE PAGTO'].str.split(' ').str[-1].str[:-1].astype(float)})
+
     
     df_transform['QTD DE PARCELAS'] = df_transform['QTD DE PARCELAS'].astype(int)
     
@@ -99,4 +87,4 @@ if __name__ == "__main__":
 
     print(f"Processing took: {took:.2f} sec")
 
-    # poetry run python etl_powerbi.py
+    # poetry run python etl_powerbi_teste.py

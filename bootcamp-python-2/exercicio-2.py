@@ -7,7 +7,7 @@ import glob
 import chardet
 
 
-caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE\2024\stone_vendas_2024_12.csv"
+caminho: str = r"C:\Users\icaro\OneDrive\ENDOVIDA\CONTABILIDADE\DATABASE\STONE\2023\stone_vendas_2022_09.csv"
 
 arquivos_csv = glob.glob(os.path.join(caminho, '*.csv'))
 
